@@ -25,19 +25,37 @@ const server = http
   });
 
 function serverListener(req, response) {
-  const stat = fs.statSync(file);
+  if (req.url === '/') {}
 
-  response.writeHead(
-    200,
-    {
-      'Content-Type': 'application/xml',
-      'Content-Length': stat.size
-    },
-  );
+  if (req.url === '/feed.xml' || req.url === '/rss') {
+    const stat = fs.statSync(file);
 
-  const readStream = fs.createReadStream(file);
+    response.writeHead(
+      200,
+      {
+        'Content-Type': 'application/xml',
+        'Content-Length': stat.size
+      },
+    );
 
-  readStream.pipe(response);
+    const readStream = fs.createReadStream(file);
+
+    readStream.pipe(response);
+  }
+
+  if (req.url === '/feed/items') {
+    return transformXmlToJson()
+      .then((data) => {
+        response.writeHead(
+          200,
+          {
+            'Content-Type': 'application/json',
+          },
+        );
+
+        response.write(JSON.stringify(data));
+      });
+  }
 }
 
 // pega da url d libsyn
@@ -62,6 +80,16 @@ async function createRssFile() {
       `);
     },
   );
+}
+
+async function transformXmlToJson() {
+  const rss = new RSSParser();
+  const localFile = await fs.readFileSync(
+    file,
+    'utf-8',
+  );
+  const {items} = await rss.parseString(localFile);
+  return items;
 }
 
 // sincroniza os dados
