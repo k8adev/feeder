@@ -56,6 +56,8 @@ function serverListener(req, response) {
         response.write(JSON.stringify(data));
       });
   }
+
+  return response.end();
 }
 
 // pega da url d libsyn
