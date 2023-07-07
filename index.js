@@ -34,7 +34,8 @@ function serverListener(req, response) {
       200,
       {
         'Content-Type': 'application/xml',
-        'Content-Length': stat.size
+        'Content-Length': stat.size,
+        'Access-Control-Allow-Origin': '*'
       },
     );
 
@@ -49,7 +50,10 @@ function serverListener(req, response) {
         response.writeHead(
           200,
           {
+            // JSON
             'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET,OPTIONS',
           },
         );
 
