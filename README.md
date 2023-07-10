@@ -24,14 +24,12 @@ feeder --rss https://feeds.libsyn.com/104268/spotify
 
 ### Setup
 
-This project uses [pnpm](https://pnpm.js.org/).
-
 ```bash
-pnpm i
+npm i
 ```
 
 ### Run
 
 ```bash
-pnpm dev
+npm run dev
 ```
