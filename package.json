@@ -13,8 +13,12 @@
   "bin": {
     "feeder": "./dist/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "rss",
+    "feed",
+    "cli"
+  ],
+  "author": "Keit Oliveira",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.3.0",

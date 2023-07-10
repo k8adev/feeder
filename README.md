@@ -33,3 +33,8 @@ npm i
 ```bash
 npm run dev
 ```
+
+### To Do
+
+- [ ] Add tests
+- [ ] Add CI to publish to GitHub Packages
