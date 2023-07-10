@@ -11,7 +11,7 @@ A simple utility for syncing RSS feeds to a local directory.
 ## Getting Started
 
 ```bash
-npm i feeder
+npm i @k8adev/feeder
 ```
 
 ## Usage
