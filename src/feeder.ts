@@ -73,13 +73,13 @@ export default class Feeder {
    */
   async createDir() {
     const dir = path.dirname(this.file);
-    const hasFile = await fs.existsSync(dir);
+    const hasFile = fs.existsSync(dir);
 
     if (hasFile) {
       return;
     }
 
-    await fs.mkdirSync(
+    await fs.promises.mkdir(
       dir,
       { recursive: true },
     );
@@ -100,7 +100,7 @@ export default class Feeder {
       ext,
     });
 
-    await fs.writeFileSync(
+    await fs.promises.writeFile(
       file,
       data,
     );

@@ -60,25 +60,23 @@ const feeder = new Feeder(
   { output },
 );
 
-(async () => {
-  try {
-    if (argv.parser) {
-      await feeder.useDataParser(argv.parser);
-    }
-
-    if (argv.json) {
-      await feeder.asJSON();
-    }
-
-    /**
-     * XML is mandatory output.
-     */
-    await feeder.asXML();
-
-    Log.success(
-      `RSS feed ${chalk.bold(rss)} has been successfully fetched.`,
-    );
-  } catch (err) {
-    Log.error(err);
+try {
+  if (argv.parser) {
+    await feeder.useDataParser(argv.parser);
   }
-})();
+
+  if (argv.json) {
+    await feeder.asJSON();
+  }
+
+  /**
+   * XML is mandatory output.
+   */
+  await feeder.asXML();
+
+  Log.success(
+    `RSS feed ${chalk.bold(rss)} has been successfully fetched.`,
+  );
+} catch (err) {
+  Log.error(err);
+}
