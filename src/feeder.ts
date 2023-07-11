@@ -34,7 +34,7 @@ export default class Feeder {
   /**
    * Transform the RSS data with a custom parser.
    */
-  private transform: any = (data: any) => data;
+  private parserRSSData: any = (data: any) => data;
 
   constructor(
     rss: string,
@@ -52,44 +52,38 @@ export default class Feeder {
     );
   }
   /**
-   * Fetch the RSS feed.
+   * Fetch the RSS.
    */
   async getRss() {
-    return fetch(this.url)
-      .then((response) => response.text())
-      .finally(() => {
-        console.log(
-          `${chalk.green('✔')} RSS feed fetched`
-        );
-      });
+    const response = await fetch(this.url);
+
+    if (!response.ok) {
+      throw new Error(
+        `Fetch RSS from ${chalk.cyan(this.url)} failed`
+      );
+    }
+
+    const data = await response.text();
+
+    return data;
   }
   /**
    * Check if the output directory exists and
    * create it if it doesn't.
    */
-  async checkOutDir() {
+  async createDir() {
     const dir = path.dirname(this.file);
-    const recursive = true;
+    const hasFile = await fs.existsSync(dir);
 
-    if (await fs.existsSync(dir)) {
+    if (hasFile) {
       return;
     }
 
-    await fs.mkdir(
+    await fs.mkdirSync(
       dir,
-      { recursive },
-      (err: any) => {
-        if (err) {
-          throw err;
-        }
-
-        console.log(
-          `${chalk.green('✔')} Output directory created`
-        );
-      },
+      { recursive: true },
     );
   }
-
   /**
    * Add the RSS file to the output directory.
    */
@@ -97,7 +91,7 @@ export default class Feeder {
     data,
     ext = '.xml',
   ) {
-    await this.checkOutDir();
+    await this.createDir();
 
     const { dir, name } = path.parse(this.file);
     const file = path.format({
@@ -106,38 +100,35 @@ export default class Feeder {
       ext,
     });
 
-    await fs.writeFile(
+    await fs.writeFileSync(
       file,
       data,
-      (err: any) => {
-        if (err) {
-          throw err;
-        }
-
-        console.log(
-          `${chalk.green('✔')} File ${ext} created`
-        );
-      },
     );
   }
-
-  async useParser(parser: any) {
+  /**
+   * Use a custom parser to transform the RSS data.
+   */
+  async useDataParser(parser) {
     const { default: fn } = await import(
       path.resolve(parser)
     );
 
     if (typeof fn !== 'function') {
       throw new Error(
-        'Parser must be a function',
+        'Parser must be a function.',
       );
     }
 
-    this.transform = fn;
+    /**
+     * @todo
+     * Maybe need to check if the parser has async/await?
+     */
+    this.parserRSSData = fn;
   }
 
   async asXML() {
-    const rssData = await this.getRss();
-    const parsedData = this.transform(rssData);
+    const data = await this.getRss();
+    const parsedData = this.parserRSSData(data);
 
     await this.addFile(
       parsedData,
@@ -146,10 +137,11 @@ export default class Feeder {
   }
 
   async asJSON() {
+    const data = await this.getRss();
     const rss = new RSSParser();
-    const rssData = await this.getRss();
-    const data = await rss.parseString(rssData);
-    const parsedData = this.transform(data);
+
+    const strData = await rss.parseString(data);
+    const parsedData = await this.parserRSSData(strData);
 
     await this.addFile(
       JSON.stringify(parsedData),
