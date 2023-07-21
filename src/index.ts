@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import yargs from 'yargs';
 import Feeder from './feeder.js';
+import Log from './log.js';
 
 const argv = yargs(process.argv.slice(2))
   .usage(`
@@ -59,28 +60,23 @@ const feeder = new Feeder(
   { output },
 );
 
-if (argv.parser) {
-  feeder.useParser(argv.parser);
-}
-
-(async () => {
-  try {
-    if (argv.json) {
-      await feeder.asJSON();
-    } else {
-      /**
-       * Default option.
-       */
-      await feeder.asXML();
-    }
-
-    console.log(
-      `${chalk.green('✔')} Done!`
-    );
-  } catch (err) {
-    console.error(
-      `${chalk.red('✖')} DO NOT PANIC! Check the error below:`
-    );
-    console.error(err);
+try {
+  if (argv.parser) {
+    await feeder.useDataParser(argv.parser);
   }
-})();
+
+  if (argv.json) {
+    await feeder.asJSON();
+  }
+
+  /**
+   * XML is mandatory output.
+   */
+  await feeder.asXML();
+
+  Log.success(
+    `RSS feed ${chalk.bold(rss)} has been successfully fetched.`,
+  );
+} catch (err) {
+  Log.error(err);
+}
